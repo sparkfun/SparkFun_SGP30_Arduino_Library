@@ -1,0 +1,51 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SGP30	KEYWORD1
+SGP30ERR	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+initAirQuality	KEYWORD2
+measureAirQuality	KEYWORD2
+getBaseline	KEYWORD2
+setBaseline	KEYWORD2
+setHumidity	KEYWORD2
+getFeatureSetVersion	KEYWORD2
+measureRawSignals	KEYWORD2
+generalCallReset	KEYWORD2
+getSerialID	KEYWORD2
+measureTest	KEYWORD2
+CO2	KEYWORD2
+TVOC	KEYWORD2
+baselineCO2	KEYWORD2
+baselineTVOC	KEYWORD2
+featureSetVersion	KEYWORD2
+H2	KEYWORD2
+ethanol	KEYWORD2
+serialID	KEYWORD2
+#######################################
+# Constants (LITERAL1)
+#######################################
+SUCCESS	LITERAL1
+ERR_BAD_CRC	LITERAL1
+ERR_I2C_TIMEOUT	LITERAL1
+SELF_TEST_FAIL	LITERAL1
+SparkFun_SGP30_Library_h	LITERAL1
+SparkFun_SGP30_Library.h	LITERAL1
+init_air_quality	LITERAL1
+measure_air_quality	LITERAL1
+get_baseline	LITERAL1
+set_baseline	LITERAL1
+set_humidity	LITERAL1
+measure_test	LITERAL1
+get_feature_set_version	LITERAL1
+get_serial_id	LITERAL1
+measure_raw_signals	LITERAL1
