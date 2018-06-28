@@ -10,31 +10,35 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
   
-  This example gets the sensor's serial ID and version number.
+  This example performs the sensor's self test and displays the results.
 */
 
-#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
-#include <Wire.h>
+#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30#include <Wire.h>
 
 SGP30 mySensor; //create an object of the SGP30 class
-
+byte count = 0;
+SGP30ERR error;
 void setup() {
   Serial.begin(9600);
   Wire.begin();
-  //Sensor supports I2C speeds up to 400kHz
   Wire.setClock(400000);
-  //Initialize sensor
   mySensor.begin();
-  //Get SGP30's ID
-  mySensor.getSerialID();
-  //Get version number
-  mySensor.getFeatureSetVersion();
-  Serial.print("SerialID: 0x");
-  Serial.print((unsigned long)mySensor.serialID, HEX);
-  Serial.print("\tFeature Set Version: 0x");
-  Serial.println(mySensor.featureSetVersion, HEX);
+  error = mySensor.measureTest();
+  if (error == SUCCESS) {
+    Serial.println("Success!");
+  }
+  else if (error == ERR_BAD_CRC) {
+    Serial.println("CRC Failed");
+  }
+  else if (error == ERR_I2C_TIMEOUT) {
+    Serial.println("I2C Timed out");
+  }
+  else if (error == SELF_TEST_FAIL) {
+    Serial.println("Self Test Failed");
+  }
 }
 
 void loop() {
 
 }
+

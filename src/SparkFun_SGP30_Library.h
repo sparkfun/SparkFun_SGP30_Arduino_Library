@@ -11,6 +11,29 @@
   SparkFun labored with love to create this code. Feel like supporting open
   source hardware? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
+
+
+  CRC lookup table from Bastian Molkenthin  http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
+
+  Copyright (c) 2015 Bastian Molkenthin
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.
 */
 
 
@@ -47,7 +70,7 @@ class SGP30
     //Start I2C communication using specified port
     SGP30ERR begin(TwoWire &wirePort = Wire);//If user doesn't specificy then Wire will be used
 
-    //Initilizes sensor for air quality readings
+    //Initializes sensor for air quality readings
     void initAirQuality(void);
 
     //Measure air quality
@@ -108,7 +131,15 @@ class SGP30
     //SGP30's I2C address
     const byte _SGP30Address = 0x58;
 
-    //lookup table for CRC8
+    //Stores serialID
+    uint16_t _serialID1;
+    uint16_t _serialID2;
+    uint16_t _serialID3;
+
+    //Generates CRC8 for SGP30 from lookup table
+    uint8_t SGP30::_CRC8(uint16_t twoBytes);
+
+    //lookup table for CRC8  http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
     const uint8_t _CRC8LookupTable[16][16] = {
       {0x00, 0x31, 0x62, 0x53, 0xC4, 0xF5, 0xA6, 0x97, 0xB9, 0x88, 0xDB, 0xEA, 0x7D, 0x4C, 0x1F, 0x2E},
       {0x43, 0x72, 0x21, 0x10, 0x87, 0xB6, 0xE5, 0xD4, 0xFA, 0xCB, 0x98, 0xA9, 0x3E, 0x0F, 0x5C, 0x6D},
@@ -128,8 +159,6 @@ class SGP30
       {0x82, 0xB3, 0xE0, 0xD1, 0x46, 0x77, 0x24, 0x15, 0x3B, 0x0A, 0x59, 0x68, 0xFF, 0xCE, 0x9D, 0xAC}
     };
 
-    //Generates CRC8 for SGP30 from lookup table
-    uint8_t SGP30::_CRC8(uint16_t twoBytes);
 };
 
 #endif

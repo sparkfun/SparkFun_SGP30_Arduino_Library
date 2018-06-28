@@ -10,7 +10,8 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
   
-  This example reads the sensors calculated CO2 and TVOC values
+  This example reads the sensors calculated CO2 and 
+  TVOC values  and the raw values for H2 and ethanol.
 */
 
 #include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
@@ -27,6 +28,7 @@ void setup() {
   mySensor.begin();
   //Initializes sensor for air quality readings
   mySensor.initAirQuality();
+
 }
 
 void loop() {
@@ -40,5 +42,10 @@ void loop() {
   Serial.print(" ppm\tTVOC: ");
   Serial.print(mySensor.TVOC);
   Serial.println(" ppb");
-
+  //get raw values for H2 and Ethanol
+  mySensor.measureRawSignals();
+  Serial.print("Raw H2: ");
+  Serial.print(mySensor.H2);
+  Serial.print(" \tRaw Ethanol: ");
+  Serial.println(mySensor.ethanol);
 }

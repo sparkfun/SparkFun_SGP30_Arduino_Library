@@ -1,8 +1,6 @@
 /*
-  This is a library written for the SPG30 air quality sensor
+  This is a library written for the SPG30
   By Ciara Jekel @ SparkFun Electronics, June 18th, 2018
-
-  The SGP30 is an indoor air quality sensor equipped with an I²C interface.
 
 
   https://github.com/sparkfun/SparkFun_SGP30_Arduino_Library
@@ -13,7 +11,31 @@
   SparkFun labored with love to create this code. Feel like supporting open
   source hardware? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
+
+
+  CRC lookup table from Bastian Molkenthin
+
+  Copyright (c) 2015 Bastian Molkenthin
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.
 */
+
 
 #include "SparkFun_SGP30_Library.h"
 
@@ -37,6 +59,9 @@ SGP30::SGP30() {
   H2 = 0;
   ethanol = 0;
   serialID = 0;
+  _serialID1 = 0;
+  _serialID2 = 0;
+  _serialID3 = 0;
 }
 
 //Start I2C communication using specified port
@@ -72,7 +97,7 @@ SGP30ERR SGP30::measureAirQuality(void) {
     delay(1);
 
     //Comes back in 6 bytes, CO2 data(MSB) / data(LSB) / Checksum / TVOC data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, 6);
+    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 12) return ERR_I2C_TIMEOUT; //Error out
   CO2 = _i2cPort->read() << 8; //store MSB in CO2
@@ -105,7 +130,7 @@ SGP30ERR SGP30::getBaseline(void) {
     delay(1);
 
     //Comes back in 6 bytes, baselineCO2 data(MSB) / data(LSB) / Checksum / baselineTVOC data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, 6);
+    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 12) return ERR_I2C_TIMEOUT; //Error out
   baselineCO2 = _i2cPort->read() << 8; //store MSB in baselineCO2
@@ -165,7 +190,7 @@ SGP30ERR SGP30::getFeatureSetVersion(void) {
     delay(1);
 
     //Comes back in 3 bytes, data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, 3);
+    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
   }
   if (counter == 3) return ERR_I2C_TIMEOUT; //Error out
   featureSetVersion = _i2cPort->read() << 8; //store MSB in featureSetVerison
@@ -190,7 +215,7 @@ SGP30ERR SGP30::measureRawSignals(void) {
     delay(5);
 
     //Comes back in 6 bytes, H2 data(MSB) / data(LSB) / Checksum / ethanol data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, 6);
+    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 5) return ERR_I2C_TIMEOUT; //Error out
   H2 = _i2cPort->read() << 8; //store MSB in H2
@@ -227,21 +252,22 @@ SGP30ERR SGP30::getSerialID(void) {
     delay(1);
 
     //Comes back in 9 bytes, H2 data(MSB) / data(LSB) / Checksum / ethanol data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, 9);
+    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)9);
   }
   if (counter == 5) return ERR_I2C_TIMEOUT; //Error out
-  serialID = _i2cPort->read() << 40; //store MSB to top of serialID
-  serialID |= _i2cPort->read() << 32; //store next byte in serialID
-  uint8_t checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != (uint16_t)(serialID >> 32)) return ERR_BAD_CRC; //checksum failed
-  serialID = _i2cPort->read() << 24; //store next byte in serialID
-  serialID |= _i2cPort->read() << 16; //store next byte in serialID
-  checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != (uint16_t)(serialID >> 16)) return ERR_BAD_CRC; //checksum failed
-  serialID = _i2cPort->read() << 8; //store next byte in serialID
-  serialID |= _i2cPort->read() ; //store LSB in serialID
-  checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != (uint16_t)serialID) return ERR_BAD_CRC; //checksum failed
+  _serialID1 = _i2cPort->read() << 8; //store MSB to top of _serialID1
+  _serialID1 |= _i2cPort->read(); //store next byte in _serialID1
+  uint8_t checkSum1 = _i2cPort->read(); //verify checksum
+  _serialID2 = _i2cPort->read() << 8; //store next byte to top of _serialID2
+  _serialID2 |= _i2cPort->read(); //store next byte in _serialID2
+  uint8_t checkSum2 = _i2cPort->read(); //verify checksum
+  _serialID3 = _i2cPort->read() << 8; //store next byte to top of _serialID3
+  _serialID3 |= _i2cPort->read() ; //store LSB in _serialID3
+  uint8_t checkSum3 = _i2cPort->read(); //verify checksum
+  if (checkSum1 != _CRC8(_serialID1)) return ERR_BAD_CRC; //checksum failed
+  if (checkSum2 != _CRC8(_serialID2)) return ERR_BAD_CRC; //checksum failed
+  if (checkSum3 != _CRC8(_serialID3)) return ERR_BAD_CRC; //checksum failed
+  serialID = ((uint64_t)_serialID1 << 32) + ((uint64_t)_serialID2 << 16) + ((uint64_t)_serialID3);
   _i2cPort->endTransmission();
   return SUCCESS;
 }
@@ -260,14 +286,14 @@ SGP30ERR SGP30::measureTest(void) {
     delay(10);
 
     //Comes back in 3 bytes, data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, 3);
+    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
   }
   if (counter == 22) return ERR_I2C_TIMEOUT; //Error out
   uint16_t results;
   results = _i2cPort->read() << 8; //store MSB in results
-  results = _i2cPort->read(); //store LSB in results
+  results |= _i2cPort->read(); //store LSB in results
   uint8_t checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != results) return ERR_BAD_CRC; //checksum failed
+  if (checkSum != _CRC8(results)) return ERR_BAD_CRC; //checksum failed
   if (results != 0xD400) return SELF_TEST_FAIL; //self test results incorrect
   _i2cPort->endTransmission();
   return SUCCESS;

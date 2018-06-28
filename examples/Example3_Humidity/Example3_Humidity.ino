@@ -1,12 +1,21 @@
 /*
+  Library for the Sensirion SGP30 Indoor Air Quality Sensor
+  By: Ciara Jekel
+  SparkFun Electronics
+  Date: June 28th, 2018
+  License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
+  
+  SGP30 Datasheet: https://cdn.sparkfun.com/assets/4/7/d/f/b/Sensirion_SGP30_Datasheet.pdf
 
-
-  This example uses the Si7021 to get relative humidity
+  Feel like supporting our work? Buy a board from SparkFun!
+  https://www.sparkfun.com/products/14813
+  
+  This example gets relative humidity from a sensor, convertts it to absolute humidty,
+  and updates the SGP30's humidity compensation with the absolute humidity value.
 */
 
-
-#include "SparkFun_SGP30_Library.h"
-#include "SparkFun_Si7021_Breakout_Library.h"
+#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
+#include "SparkFun_Si7021_Breakout_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_Si7021
 #include <Wire.h>
 
 SGP30 mySensor; //create an instance of the SGP30 class
@@ -18,9 +27,9 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   Wire.setClock(400000);
-  //Initialize the SGP30 
+  //Initialize the SGP30
   mySensor.begin();
-  
+
   //Initialize the humidity sensor and ping it
   hSensor.begin();
   // Measure Relative Humidity from the Si7021
@@ -31,32 +40,30 @@ void setup() {
   double absHumidity = RHtoAbsolute(humidity, temperature);
   //Convert the double type humidity to a fixed point 8.8bit number
   uint16_t sensHumidity = doubleToFixedPoint(absHumidity);
-  //Set the humidity compensation on the SGP30 to the measured value
-  mySensor.setHumidity(sensHumidity);
-  
-  //ignore first 15 readings
+  //Initializes sensor for air quality readings
   mySensor.initAirQuality();
-  while (count < 15) {
-    delay(1000); //Wait 1 second
-    mySensor.measureAirQuality();
-    count++;
-  }
+  //Set the humidity compensation on the SGP30 to the measured value
+  //If no humidity sensor attached, sensHumidity should be 0 and sensor will use default
+  mySensor.setHumidity(sensHumidity);
+
 }
 
 void loop() {
+  //First fifteen readings will be
+  //CO2: 400 ppm  TVOC: 0 ppb
   delay(1000); //Wait 1 second
   mySensor.measureAirQuality();
   Serial.print("CO2: ");
   Serial.print(mySensor.CO2);
-  Serial.print(" ppm\tTVOC");
+  Serial.print(" ppm\tTVOC: ");
   Serial.print(mySensor.TVOC);
   Serial.println(" ppb");
 
 }
 
 double RHtoAbsolute (float relHumidity, float tempC) {
-  double Es = 6.11 * pow(10.0, (7.5 * tempC / (237.7 + tempC)));
-  double vaporPressure = (relHumidity * Es) / 100; //millibars
+  double eSat = 6.11 * pow(10.0, (7.5 * tempC / (237.7 + tempC)));
+  double vaporPressure = (relHumidity * eSat) / 100; //millibars
   double absHumidity = 1000 * vaporPressure * 100 / ((tempC + 273) * 461.5); //Ideal gas law with unit conversions
 }
 

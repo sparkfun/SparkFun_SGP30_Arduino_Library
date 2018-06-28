@@ -10,35 +10,52 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
   
-  This example reads the sensors calculated CO2 and TVOC values
+  This example tasks a scheduler with reading air quality,
+  freeing the main loop from wasteful delays.
 */
 
 #include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
+#include <TaskScheduler.h> // Click here to get the library: http://librarymanager/All#TaskScheduler
 #include <Wire.h>
 
+void t1Callback(void);
+
 SGP30 mySensor; //create an object of the SGP30 class
+bool results = false;
+//run task t1Callback every 1000ms (1s) forever
+Task t1(1000, TASK_FOREVER, &t1Callback);
+Scheduler runner; //create an object of the Scheduler class
 
 void setup() {
   Serial.begin(9600);
   Wire.begin();
-  //Sensor supports I2C speeds up to 400kHz
   Wire.setClock(400000);
-  //Initialize sensor
   mySensor.begin();
-  //Initializes sensor for air quality readings
+  //initialize scheduler
+  runner.init();
+  //add task t1 to the schedule
+  runner.addTask(t1);
   mySensor.initAirQuality();
+  //enable t1 to run
+  t1.enable();
 }
 
 void loop() {
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb
-  delay(1000); //Wait 1 second
-  //measure CO2 and TVOC levels
-  mySensor.measureAirQuality();
-  Serial.print("CO2: ");
-  Serial.print(mySensor.CO2);
-  Serial.print(" ppm\tTVOC: ");
-  Serial.print(mySensor.TVOC);
-  Serial.println(" ppb");
-
+  runner.execute();
+  if (results == true) {
+    Serial.print("CO2: ");
+    Serial.print(mySensor.CO2);
+    Serial.print(" ppm\tTVOC");
+    Serial.print(mySensor.TVOC);
+    Serial.println(" ppb");
+    results = false;
+  }
 }
+
+void t1Callback(void) {
+  mySensor.measureAirQuality();
+  results = true;
+}
+

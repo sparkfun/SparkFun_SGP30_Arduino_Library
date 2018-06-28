@@ -10,13 +10,14 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
   
-  This example reads the sensors calculated CO2 and TVOC values
+  This example measures CO2 and TVOC and reports any errors.
 */
 
 #include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
 #include <Wire.h>
 
 SGP30 mySensor; //create an object of the SGP30 class
+SGP30ERR error;
 
 void setup() {
   Serial.begin(9600);
@@ -34,11 +35,18 @@ void loop() {
   //CO2: 400 ppm  TVOC: 0 ppb
   delay(1000); //Wait 1 second
   //measure CO2 and TVOC levels
-  mySensor.measureAirQuality();
-  Serial.print("CO2: ");
-  Serial.print(mySensor.CO2);
-  Serial.print(" ppm\tTVOC: ");
-  Serial.print(mySensor.TVOC);
-  Serial.println(" ppb");
-
+  error = mySensor.measureAirQuality();
+  if (error == SUCCESS) {
+    Serial.print("CO2: ");
+    Serial.print(mySensor.CO2);
+    Serial.print(" ppm\tTVOC: ");
+    Serial.print(mySensor.TVOC);
+    Serial.println(" ppb");
+  }
+  else if (error == ERR_BAD_CRC) {
+    Serial.println("CRC Failed");
+  }
+  else if (error == ERR_I2C_TIMEOUT) {
+    Serial.println("I2C Timed out");
+  }
 }
