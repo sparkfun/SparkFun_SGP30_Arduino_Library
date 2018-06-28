@@ -68,6 +68,8 @@ SGP30::SGP30() {
 SGP30ERR SGP30::begin(TwoWire &wirePort) {
   _i2cPort = &wirePort; //Grab which port the user wants us to use
   _i2cPort->begin();
+  getSerialID();
+  if (serialID != 0x646762) return NO_SENSOR;
   return SUCCESS;
 }
 
@@ -100,15 +102,17 @@ SGP30ERR SGP30::measureAirQuality(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 12) return ERR_I2C_TIMEOUT; //Error out
-  CO2 = _i2cPort->read() << 8; //store MSB in CO2
-  CO2 |= _i2cPort->read(); //store LSB in CO2
+  _CO2 = _i2cPort->read() << 8; //store MSB in CO2
+  _CO2 |= _i2cPort->read(); //store LSB in CO2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != _CRC8(CO2)) return ERR_BAD_CRC; //checksum failed
-  TVOC = _i2cPort->read() << 8; //store MSB in TVOC
-  TVOC |= _i2cPort->read(); //store LSB in TVOC
+  if (checkSum != _CRC8(_CO2)) return ERR_BAD_CRC; //checksum failed
+  _TVOC = _i2cPort->read() << 8; //store MSB in TVOC
+  _TVOC |= _i2cPort->read(); //store LSB in TVOC
   checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != _CRC8(TVOC)) return ERR_BAD_CRC; //checksum failed
+  if (checkSum != _CRC8(_TVOC)) return ERR_BAD_CRC; //checksum failed
   _i2cPort->endTransmission();
+  CO2 = _CO2; //publish valid data
+  TVOC = _TVOC; //publish valid data
   return SUCCESS;
 }
 
@@ -133,15 +137,17 @@ SGP30ERR SGP30::getBaseline(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 12) return ERR_I2C_TIMEOUT; //Error out
-  baselineCO2 = _i2cPort->read() << 8; //store MSB in baselineCO2
-  baselineCO2 |= _i2cPort->read(); //store LSB in baselineCO2
+  _baselineCO2 = _i2cPort->read() << 8; //store MSB in _baselineCO2
+  _baselineCO2 |= _i2cPort->read(); //store LSB in _baselineCO2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != _CRC8(baselineCO2)) return ERR_BAD_CRC; //checksum failed
-  baselineTVOC = _i2cPort->read() << 8; //store MSB in baselineTVOC
-  baselineTVOC |= _i2cPort->read(); //store LSB in baselineTVOC
+  if (checkSum != _CRC8(_baselineCO2)) return ERR_BAD_CRC; //checksum failed
+  _baselineTVOC = _i2cPort->read() << 8; //store MSB in _baselineTVOC
+  _baselineTVOC |= _i2cPort->read(); //store LSB in _baselineTVOC
   checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != _CRC8(baselineTVOC)) return ERR_BAD_CRC; //checksum failed
+  if (checkSum != _CRC8(_baselineTVOC)) return ERR_BAD_CRC; //checksum failed
   _i2cPort->endTransmission();
+  baselineCO2 = _baselineCO2; //publish valid data
+  baselineTVOC = _baselineTVOC; //publish valid data
   return SUCCESS;
 }
 
@@ -193,11 +199,12 @@ SGP30ERR SGP30::getFeatureSetVersion(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
   }
   if (counter == 3) return ERR_I2C_TIMEOUT; //Error out
-  featureSetVersion = _i2cPort->read() << 8; //store MSB in featureSetVerison
-  featureSetVersion |= _i2cPort->read(); //store LSB in featureSetVersion
+  _featureSetVersion = _i2cPort->read() << 8; //store MSB in featureSetVerison
+  _featureSetVersion |= _i2cPort->read(); //store LSB in featureSetVersion
   uint8_t checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != _CRC8(featureSetVersion)) return ERR_BAD_CRC; //checksum failed
+  if (checkSum != _CRC8(_featureSetVersion)) return ERR_BAD_CRC; //checksum failed
   _i2cPort->endTransmission();
+  featureSetVersion = _featureSetVersion; //publish valid data
   return SUCCESS;
 }
 
@@ -218,15 +225,17 @@ SGP30ERR SGP30::measureRawSignals(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 5) return ERR_I2C_TIMEOUT; //Error out
-  H2 = _i2cPort->read() << 8; //store MSB in H2
-  H2 |= _i2cPort->read(); //store LSB in H2
+  _H2 = _i2cPort->read() << 8; //store MSB in H2
+  _H2 |= _i2cPort->read(); //store LSB in H2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != _CRC8(H2)) return ERR_BAD_CRC; //checksumfailed
-  ethanol = _i2cPort->read() << 8; //store MSB in ethanol
-  ethanol |= _i2cPort->read(); //store LSB in ethanol
+  if (checkSum != _CRC8(_H2)) return ERR_BAD_CRC; //checksumfailed
+  _ethanol = _i2cPort->read() << 8; //store MSB in ethanol
+  _ethanol |= _i2cPort->read(); //store LSB in ethanol
   checkSum = _i2cPort->read(); //verify checksum
-  if (checkSum != _CRC8(ethanol)) return ERR_BAD_CRC; //checksum failed
+  if (checkSum != _CRC8(_ethanol)) return ERR_BAD_CRC; //checksum failed
   _i2cPort->endTransmission();
+  H2 = _H2; //publish valid data
+  ethanol = _ethanol; //publish valid data
   return SUCCESS;
 }
 
@@ -267,7 +276,7 @@ SGP30ERR SGP30::getSerialID(void) {
   if (checkSum1 != _CRC8(_serialID1)) return ERR_BAD_CRC; //checksum failed
   if (checkSum2 != _CRC8(_serialID2)) return ERR_BAD_CRC; //checksum failed
   if (checkSum3 != _CRC8(_serialID3)) return ERR_BAD_CRC; //checksum failed
-  serialID = ((uint64_t)_serialID1 << 32) + ((uint64_t)_serialID2 << 16) + ((uint64_t)_serialID3);
+  serialID = ((uint64_t)_serialID1 << 32) + ((uint64_t)_serialID2 << 16) + ((uint64_t)_serialID3); //publish valid data
   _i2cPort->endTransmission();
   return SUCCESS;
 }

@@ -4,12 +4,12 @@
   SparkFun Electronics
   Date: June 28th, 2018
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
-  
+
   SGP30 Datasheet: https://cdn.sparkfun.com/assets/4/7/d/f/b/Sensirion_SGP30_Datasheet.pdf
 
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
-  
+
   This example reads the sensors calculated CO2 and TVOC values
 */
 
@@ -24,7 +24,10 @@ void setup() {
   //Sensor supports I2C speeds up to 400kHz
   Wire.setClock(400000);
   //Initialize sensor
-  mySensor.begin();
+  if (mySensor.begin() != SUCCESS) {
+    Serial.println("No SGP30 Detected. Check connections.");
+    while (1);
+  }
   //Initializes sensor for air quality readings
   mySensor.initAirQuality();
 }

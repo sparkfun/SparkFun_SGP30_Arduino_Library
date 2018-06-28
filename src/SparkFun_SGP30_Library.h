@@ -44,6 +44,7 @@
 #include <Wire.h>
 typedef enum {
   SUCCESS = 0,
+  NO_SENSOR,
   ERR_BAD_CRC,
   ERR_I2C_TIMEOUT,
   SELF_TEST_FAIL
@@ -131,7 +132,14 @@ class SGP30
     //SGP30's I2C address
     const byte _SGP30Address = 0x58;
 
-    //Stores serialID
+    //private versions of public vars so only valid data is user accessible
+    uint16_t _CO2;
+    uint16_t _TVOC;
+    uint16_t _baselineCO2;
+    uint16_t _baselineTVOC;
+    uint16_t _featureSetVersion;
+    uint16_t _H2;
+    uint16_t _ethanol;
     uint16_t _serialID1;
     uint16_t _serialID2;
     uint16_t _serialID3;

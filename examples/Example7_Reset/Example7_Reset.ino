@@ -4,12 +4,12 @@
   SparkFun Electronics
   Date: June 28th, 2018
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
-  
+
   SGP30 Datasheet: https://cdn.sparkfun.com/assets/4/7/d/f/b/Sensirion_SGP30_Datasheet.pdf
 
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
-  
+
   This example performs a soft reset on the sensor and restores its baseline.
 */
 
@@ -26,12 +26,15 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   Wire.setClock(400000);
-  mySensor.begin();
+  if (mySensor.begin() != SUCCESS) {
+    Serial.println("No SGP30 Detected. Check connections.");
+    while (1);
+  }
   mySensor.initAirQuality();
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb
   //We will reset after 30 readings
-  for (count; count < 30; count++) 
+  for (count; count < 30; count++)
   {
     delay(1000); //Wait 1 second
     mySensor.measureAirQuality();

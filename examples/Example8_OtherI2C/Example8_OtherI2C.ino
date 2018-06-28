@@ -10,34 +10,35 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
 
-  This example gets the sensor's serial ID and version number.
+  This example reads the sensors calculated CO2 and TVOC values using Software Wire
 */
 
 #include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
-#include <Wire.h>
+#include <SoftwareWire.h>
 
 SGP30 mySensor; //create an object of the SGP30 class
 
 void setup() {
   Serial.begin(9600);
-  Wire.begin();
-  //Sensor supports I2C speeds up to 400kHz
-  Wire.setClock(400000);
-  //Initialize sensor
-  if (mySensor.begin() != SUCCESS) {
+  //Initialize sensor, specifying I2C port
+  if (mySensor.begin(Wire) != SUCCESS) {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }
-  //Get SGP30's ID
-  mySensor.getSerialID();
-  //Get version number
-  mySensor.getFeatureSetVersion();
-  Serial.print("SerialID: 0x");
-  Serial.print((unsigned long)mySensor.serialID, HEX);
-  Serial.print("\tFeature Set Version: 0x");
-  Serial.println(mySensor.featureSetVersion, HEX);
+  //Initializes sensor for air quality readings
+  mySensor.initAirQuality();
 }
 
 void loop() {
+  //First fifteen readings will be
+  //CO2: 400 ppm  TVOC: 0 ppb
+  delay(1000); //Wait 1 second
+  //measure CO2 and TVOC levels
+  mySensor.measureAirQuality();
+  Serial.print("CO2: ");
+  Serial.print(mySensor.CO2);
+  Serial.print(" ppm\tTVOC: ");
+  Serial.print(mySensor.TVOC);
+  Serial.println(" ppb");
 
 }
