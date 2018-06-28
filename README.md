@@ -17,7 +17,7 @@ Documentation
 --------------
 
 * **[Installing an Arduino Library Guide](https://learn.sparkfun.com/tutorials/installing-an-arduino-library)** - Basic information on how to install an Arduino library.
-* **[Product Repository](https://github.com/sparkfunX/Qwiic_LED_Stick)** - Main repository (including hardware files)
+* **[Product Repository](https://github.com/sparkfunX/Qwiic-SGP30-Breakout)** - Main repository (including hardware files)
 
 License Information
 -------------------
