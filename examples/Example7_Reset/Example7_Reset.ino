@@ -18,7 +18,6 @@
 #include <EEPROM.h>
 
 SGP30 mySensor; //create an object of the SGP30 class
-byte count = 0;
 byte baselineC02Addr = 0x00;
 byte baselineTVOCAddr = 0x02;
 
@@ -34,7 +33,7 @@ void setup() {
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb
   //We will reset after 30 readings
-  for (count; count < 30; count++)
+  for (byte count = 0; count < 30; count++)
   {
     delay(1000); //Wait 1 second
     mySensor.measureAirQuality();

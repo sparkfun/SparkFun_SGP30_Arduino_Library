@@ -21,8 +21,6 @@ SGP30 mySensor; //create an object of the SGP30 class
 void setup() {
   Serial.begin(9600);
   Wire.begin();
-  //Sensor supports I2C speeds up to 400kHz
-  Wire.setClock(400000);
   //Initialize sensor
   if (mySensor.begin() != SUCCESS) {
     Serial.println("No SGP30 Detected. Check connections.");

@@ -39,15 +39,6 @@
 
 #include "SparkFun_SGP30_Library.h"
 
-//const uint8_t init_air_quality[2] = {0x20, 0x03};
-//const uint8_t measure_air_quality[2] = {0x20, 0x08};
-//const uint8_t get_baseline[2] = {0x20, 0x15};
-//const uint8_t set_baseline[2] = {0x20, 0x1E};
-//const uint8_t set_humidity[2] = {0x20, 0x61};
-//const uint8_t measure_test[2] = {0x20, 0x32};
-//const uint8_t get_feature_set_version[2] = {0x20, 0x2F};
-//const uint8_t get_serial_id[2] = {0x36, 0x82};
-//const uint8_t measure_raw_signals[2] = {0x20, 0x50};
 
 //Constructor
 SGP30::SGP30() {
@@ -59,9 +50,6 @@ SGP30::SGP30() {
   H2 = 0;
   ethanol = 0;
   serialID = 0;
-  _serialID1 = 0;
-  _serialID2 = 0;
-  _serialID3 = 0;
 }
 
 //Start I2C communication using specified port
@@ -103,11 +91,11 @@ SGP30ERR SGP30::measureAirQuality(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 12) return ERR_I2C_TIMEOUT; //Error out
-  _CO2 = _i2cPort->read() << 8; //store MSB in CO2
+  uint16_t _CO2 = _i2cPort->read() << 8; //store MSB in CO2
   _CO2 |= _i2cPort->read(); //store LSB in CO2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_CO2)) return ERR_BAD_CRC; //checksum failed
-  _TVOC = _i2cPort->read() << 8; //store MSB in TVOC
+  uint16_t _TVOC = _i2cPort->read() << 8; //store MSB in TVOC
   _TVOC |= _i2cPort->read(); //store LSB in TVOC
   checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_TVOC)) return ERR_BAD_CRC; //checksum failed
@@ -137,11 +125,11 @@ SGP30ERR SGP30::getBaseline(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 12) return ERR_I2C_TIMEOUT; //Error out
-  _baselineCO2 = _i2cPort->read() << 8; //store MSB in _baselineCO2
+  uint16_t _baselineCO2 = _i2cPort->read() << 8; //store MSB in _baselineCO2
   _baselineCO2 |= _i2cPort->read(); //store LSB in _baselineCO2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_baselineCO2)) return ERR_BAD_CRC; //checksum failed
-  _baselineTVOC = _i2cPort->read() << 8; //store MSB in _baselineTVOC
+  uint16_t _baselineTVOC = _i2cPort->read() << 8; //store MSB in _baselineTVOC
   _baselineTVOC |= _i2cPort->read(); //store LSB in _baselineTVOC
   checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_baselineTVOC)) return ERR_BAD_CRC; //checksum failed
@@ -198,7 +186,7 @@ SGP30ERR SGP30::getFeatureSetVersion(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
   }
   if (counter == 3) return ERR_I2C_TIMEOUT; //Error out
-  _featureSetVersion = _i2cPort->read() << 8; //store MSB in featureSetVerison
+  uint16_t _featureSetVersion = _i2cPort->read() << 8; //store MSB in featureSetVerison
   _featureSetVersion |= _i2cPort->read(); //store LSB in featureSetVersion
   uint8_t checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_featureSetVersion)) return ERR_BAD_CRC; //checksum failed
@@ -224,11 +212,11 @@ SGP30ERR SGP30::measureRawSignals(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
   }
   if (counter == 5) return ERR_I2C_TIMEOUT; //Error out
-  _H2 = _i2cPort->read() << 8; //store MSB in H2
-  _H2 |= _i2cPort->read(); //store LSB in H2
+  uint16_t _H2 = _i2cPort->read() << 8; //store MSB in _H2
+  _H2 |= _i2cPort->read(); //store LSB in _H2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_H2)) return ERR_BAD_CRC; //checksumfailed
-  _ethanol = _i2cPort->read() << 8; //store MSB in ethanol
+  uint16_t _ethanol = _i2cPort->read() << 8; //store MSB in ethanol
   _ethanol |= _i2cPort->read(); //store LSB in ethanol
   checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_ethanol)) return ERR_BAD_CRC; //checksum failed
@@ -262,15 +250,15 @@ SGP30ERR SGP30::getSerialID(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)9);
   }
   if (counter == 5) return ERR_I2C_TIMEOUT; //Error out
-  _serialID1 = _i2cPort->read() << 8; //store MSB to top of _serialID1
+  uint16_t _serialID1 = _i2cPort->read() << 8; //store MSB to top of _serialID1
   _serialID1 |= _i2cPort->read(); //store next byte in _serialID1
   uint8_t checkSum1 = _i2cPort->read(); //verify checksum
   if (checkSum1 != _CRC8(_serialID1)) return ERR_BAD_CRC; //checksum failed
-  _serialID2 = _i2cPort->read() << 8; //store next byte to top of _serialID2
+  uint16_t _serialID2 = _i2cPort->read() << 8; //store next byte to top of _serialID2
   _serialID2 |= _i2cPort->read(); //store next byte in _serialID2
   uint8_t checkSum2 = _i2cPort->read(); //verify checksum
   if (checkSum2 != _CRC8(_serialID2)) return ERR_BAD_CRC; //checksum failed
-  _serialID3 = _i2cPort->read() << 8; //store next byte to top of _serialID3
+  uint16_t _serialID3 = _i2cPort->read() << 8; //store next byte to top of _serialID3
   _serialID3 |= _i2cPort->read() ; //store LSB in _serialID3
   uint8_t checkSum3 = _i2cPort->read(); //verify checksum
   if (checkSum3 != _CRC8(_serialID3)) return ERR_BAD_CRC; //checksum failed
@@ -295,8 +283,7 @@ SGP30ERR SGP30::measureTest(void) {
     toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
   }
   if (counter == 22) return ERR_I2C_TIMEOUT; //Error out
-  uint16_t results;
-  results = _i2cPort->read() << 8; //store MSB in results
+  uint16_t results = _i2cPort->read() << 8; //store MSB in results
   results |= _i2cPort->read(); //store LSB in results
   uint8_t checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(results)) return ERR_BAD_CRC; //checksum failed
@@ -304,15 +291,49 @@ SGP30ERR SGP30::measureTest(void) {
   return SUCCESS;
 }
 
+#ifndef LOOKUP_TABLE
+//Given an array and a number of bytes, this calculate CRC8 for those bytes
+//CRC is only calc'd on the data portion (two bytes) of the four bytes being sent
+//From: http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
+//Tested with: http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
+//x^8+x^5+x^4+1 = 0x31
+uint8_t SGP30::_CRC8(uint16_t data)
+{
+  uint8_t crc = 0xFF; //Init with 0xFF
+
+  crc ^= (data >> 8); // XOR-in the first input byte
+
+  for (uint8_t i = 0 ; i < 8 ; i++)
+  {
+    if ((crc & 0x80) != 0)
+      crc = (uint8_t)((crc << 1) ^ 0x31);
+    else
+      crc <<= 1;
+  }
+  crc ^= (uint8_t)data; // XOR-in the last input byte
+
+  for (uint8_t i = 0 ; i < 8 ; i++)
+  {
+    if ((crc & 0x80) != 0)
+      crc = (uint8_t)((crc << 1) ^ 0x31);
+    else
+      crc <<= 1;
+  }
+
+  return crc; //No output reflection
+}
+#endif
+
+#ifdef LOOKUP_TABLE
 //Generates CRC8 for SGP30 from lookup table
-uint8_t SGP30::_CRC8(uint16_t twoBytes) {
+uint8_t SGP30::_CRC8(uint16_t data) {
   uint8_t CRC = 0xFF; //inital value
-  CRC ^= (uint8_t)(twoBytes >> 8); //start with MSB
+  CRC ^= (uint8_t)(data >> 8); //start with MSB
   CRC = _CRC8LookupTable[CRC >> 4][CRC & 0xF]; //look up table [MSnibble][LSnibble]
-  CRC ^= (uint8_t)twoBytes; //use LSB
+  CRC ^= (uint8_t)data; //use LSB
   CRC = _CRC8LookupTable[CRC >> 4][CRC & 0xF]; //look up table [MSnibble][LSnibble]
   return CRC;
 }
-
+#endif
 
 

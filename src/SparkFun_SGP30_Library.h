@@ -141,21 +141,10 @@ class SGP30
     //SGP30's I2C address
     const byte _SGP30Address = 0x58;
 
-    //private versions of public vars so only valid data is user accessible
-    uint16_t _CO2;
-    uint16_t _TVOC;
-    uint16_t _baselineCO2;
-    uint16_t _baselineTVOC;
-    uint16_t _featureSetVersion;
-    uint16_t _H2;
-    uint16_t _ethanol;
-    uint16_t _serialID1;
-    uint16_t _serialID2;
-    uint16_t _serialID3;
-
     //Generates CRC8 for SGP30 from lookup table
     uint8_t SGP30::_CRC8(uint16_t twoBytes);
 
+#ifdef LOOKUP_TABLE
     //lookup table for CRC8  http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
     const uint8_t _CRC8LookupTable[16][16] = {
       {0x00, 0x31, 0x62, 0x53, 0xC4, 0xF5, 0xA6, 0x97, 0xB9, 0x88, 0xDB, 0xEA, 0x7D, 0x4C, 0x1F, 0x2E},
@@ -175,6 +164,7 @@ class SGP30
       {0xC1, 0xF0, 0xA3, 0x92, 0x05, 0x34, 0x67, 0x56, 0x78, 0x49, 0x1A, 0x2B, 0xBC, 0x8D, 0xDE, 0xEF},
       {0x82, 0xB3, 0xE0, 0xD1, 0x46, 0x77, 0x24, 0x15, 0x3B, 0x0A, 0x59, 0x68, 0xFF, 0xCE, 0x9D, 0xAC}
     };
+#endif
 
 };
 
