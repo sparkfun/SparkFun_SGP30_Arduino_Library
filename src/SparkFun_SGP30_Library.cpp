@@ -39,15 +39,15 @@
 
 #include "SparkFun_SGP30_Library.h"
 
-const uint8_t init_air_quality[2] = {0x20, 0x03};
-const uint8_t measure_air_quality[2] = {0x20, 0x08};
-const uint8_t get_baseline[2] = {0x20, 0x15};
-const uint8_t set_baseline[2] = {0x20, 0x1E};
-const uint8_t set_humidity[2] = {0x20, 0x61};
-const uint8_t measure_test[2] = {0x20, 0x32};
-const uint8_t get_feature_set_version[2] = {0x20, 0x2F};
-const uint8_t get_serial_id[2] = {0x36, 0x82};
-const uint8_t measure_raw_signals[2] = {0x20, 0x50};
+//const uint8_t init_air_quality[2] = {0x20, 0x03};
+//const uint8_t measure_air_quality[2] = {0x20, 0x08};
+//const uint8_t get_baseline[2] = {0x20, 0x15};
+//const uint8_t set_baseline[2] = {0x20, 0x1E};
+//const uint8_t set_humidity[2] = {0x20, 0x61};
+//const uint8_t measure_test[2] = {0x20, 0x32};
+//const uint8_t get_feature_set_version[2] = {0x20, 0x2F};
+//const uint8_t get_serial_id[2] = {0x36, 0x82};
+//const uint8_t measure_raw_signals[2] = {0x20, 0x50};
 
 //Constructor
 SGP30::SGP30() {
@@ -65,6 +65,7 @@ SGP30::SGP30() {
 }
 
 //Start I2C communication using specified port
+//Returns SUCCESS if successful or other error code if unsuccessful
 SGP30ERR SGP30::begin(TwoWire &wirePort) {
   _i2cPort = &wirePort; //Grab which port the user wants us to use
   _i2cPort->begin();
@@ -86,7 +87,7 @@ void SGP30::initAirQuality(void) {
 //Call in regular intervals of 1 second to maintain synamic baseline calculations
 //CO2 returned in ppm, Total Volatile Organic Compounds (TVOC) returned in ppb
 //Will give fixed values of CO2=400 and TVOC=0 for first 15 seconds after init
-//returns ERR_BAD_CRC if CRC8 check failed and SUCCESS if successful
+//Returns SUCCESS if successful or other error code if unsuccessful
 SGP30ERR SGP30::measureAirQuality(void) {
   _i2cPort->beginTransmission(_SGP30Address);
   _i2cPort->write(measure_air_quality, 2); //command to measure air quality
@@ -110,7 +111,6 @@ SGP30ERR SGP30::measureAirQuality(void) {
   _TVOC |= _i2cPort->read(); //store LSB in TVOC
   checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_TVOC)) return ERR_BAD_CRC; //checksum failed
-  _i2cPort->endTransmission();
   CO2 = _CO2; //publish valid data
   TVOC = _TVOC; //publish valid data
   return SUCCESS;
@@ -121,7 +121,7 @@ SGP30ERR SGP30::measureAirQuality(void) {
 //Save baseline periodically to non volatile memory
 //(like EEPROM) to restore after new power up or
 //after soft reset using setBaseline();
-//returns ERR_BAD_CRC if CRC8 check failed and SUCCESS if successful
+//Returns SUCCESS if successful or other error code if unsuccessful
 SGP30ERR SGP30::getBaseline(void) {
   _i2cPort->beginTransmission(_SGP30Address);
   _i2cPort->write(get_baseline, 2);
@@ -145,7 +145,6 @@ SGP30ERR SGP30::getBaseline(void) {
   _baselineTVOC |= _i2cPort->read(); //store LSB in _baselineTVOC
   checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_baselineTVOC)) return ERR_BAD_CRC; //checksum failed
-  _i2cPort->endTransmission();
   baselineCO2 = _baselineCO2; //publish valid data
   baselineTVOC = _baselineTVOC; //publish valid data
   return SUCCESS;
@@ -183,7 +182,7 @@ void SGP30::setHumidity(uint16_t humidity) {
 }
 
 //gives feature set version number (see data sheet)
-//returns ERR_BAD_CRC if CRC8 check failed and SUCCESS if successful
+//Returns SUCCESS if successful or other error code if unsuccessful
 SGP30ERR SGP30::getFeatureSetVersion(void) {
   _i2cPort->beginTransmission(_SGP30Address);
   _i2cPort->write(get_feature_set_version, 2); //command to get feature version
@@ -203,13 +202,13 @@ SGP30ERR SGP30::getFeatureSetVersion(void) {
   _featureSetVersion |= _i2cPort->read(); //store LSB in featureSetVersion
   uint8_t checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_featureSetVersion)) return ERR_BAD_CRC; //checksum failed
-  _i2cPort->endTransmission();
   featureSetVersion = _featureSetVersion; //publish valid data
   return SUCCESS;
 }
 
 //Intended for part verification and testing
 //these raw signals are used as inputs to the onchip calibrations and algorithms
+//Returns SUCCESS if successful or other error code if unsuccessful
 SGP30ERR SGP30::measureRawSignals(void) {
   _i2cPort->beginTransmission(_SGP30Address);
   _i2cPort->write(measure_raw_signals, 2); //command to measure raw signals
@@ -233,7 +232,6 @@ SGP30ERR SGP30::measureRawSignals(void) {
   _ethanol |= _i2cPort->read(); //store LSB in ethanol
   checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(_ethanol)) return ERR_BAD_CRC; //checksum failed
-  _i2cPort->endTransmission();
   H2 = _H2; //publish valid data
   ethanol = _ethanol; //publish valid data
   return SUCCESS;
@@ -248,7 +246,7 @@ void SGP30::generalCallReset(void) {
 }
 
 //readout of serial ID register can identify chip and verify sensor presence
-//returns ERR_BAD_CRC if CRC8 check failed and SUCCESS if successful
+//Returns SUCCESS if successful or other error code if unsuccessful
 SGP30ERR SGP30::getSerialID(void) {
   _i2cPort->beginTransmission(_SGP30Address);
   _i2cPort->write(get_serial_id, 2); //command to get serial ID
@@ -267,22 +265,21 @@ SGP30ERR SGP30::getSerialID(void) {
   _serialID1 = _i2cPort->read() << 8; //store MSB to top of _serialID1
   _serialID1 |= _i2cPort->read(); //store next byte in _serialID1
   uint8_t checkSum1 = _i2cPort->read(); //verify checksum
+  if (checkSum1 != _CRC8(_serialID1)) return ERR_BAD_CRC; //checksum failed
   _serialID2 = _i2cPort->read() << 8; //store next byte to top of _serialID2
   _serialID2 |= _i2cPort->read(); //store next byte in _serialID2
   uint8_t checkSum2 = _i2cPort->read(); //verify checksum
+  if (checkSum2 != _CRC8(_serialID2)) return ERR_BAD_CRC; //checksum failed
   _serialID3 = _i2cPort->read() << 8; //store next byte to top of _serialID3
   _serialID3 |= _i2cPort->read() ; //store LSB in _serialID3
   uint8_t checkSum3 = _i2cPort->read(); //verify checksum
-  if (checkSum1 != _CRC8(_serialID1)) return ERR_BAD_CRC; //checksum failed
-  if (checkSum2 != _CRC8(_serialID2)) return ERR_BAD_CRC; //checksum failed
   if (checkSum3 != _CRC8(_serialID3)) return ERR_BAD_CRC; //checksum failed
   serialID = ((uint64_t)_serialID1 << 32) + ((uint64_t)_serialID2 << 16) + ((uint64_t)_serialID3); //publish valid data
-  _i2cPort->endTransmission();
   return SUCCESS;
 }
 
 //Sensor runs on chip self test
-//returns SUCCESS if successful
+//Returns SUCCESS if successful or other error code if unsuccessful
 SGP30ERR SGP30::measureTest(void) {
   _i2cPort->beginTransmission(_SGP30Address);
   _i2cPort->write(measure_test, 2); //command to get self test
@@ -304,7 +301,6 @@ SGP30ERR SGP30::measureTest(void) {
   uint8_t checkSum = _i2cPort->read(); //verify checksum
   if (checkSum != _CRC8(results)) return ERR_BAD_CRC; //checksum failed
   if (results != 0xD400) return SELF_TEST_FAIL; //self test results incorrect
-  _i2cPort->endTransmission();
   return SUCCESS;
 }
 

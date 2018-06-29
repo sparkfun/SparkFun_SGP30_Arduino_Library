@@ -5,7 +5,7 @@
   Date: June 28th, 2018
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
 
-  SGP30 Datasheet: https://cdn.sparkfun.com/assets/4/7/d/f/b/Sensirion_SGP30_Datasheet.pdf
+  SGP30 Datasheet: https://cdn.sparkfun.com/assets/c/0/a/2/e/Sensirion_Gas_Sensors_SGP30_Datasheet.pdf
 
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813

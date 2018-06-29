@@ -50,6 +50,15 @@ typedef enum {
   SELF_TEST_FAIL
 } SGP30ERR;
 
+const uint8_t init_air_quality[2] = {0x20, 0x03};
+const uint8_t measure_air_quality[2] = {0x20, 0x08};
+const uint8_t get_baseline[2] = {0x20, 0x15};
+const uint8_t set_baseline[2] = {0x20, 0x1E};
+const uint8_t set_humidity[2] = {0x20, 0x61};
+const uint8_t measure_test[2] = {0x20, 0x32};
+const uint8_t get_feature_set_version[2] = {0x20, 0x2F};
+const uint8_t get_serial_id[2] = {0x36, 0x82};
+const uint8_t measure_raw_signals[2] = {0x20, 0x50};
 
 class SGP30
 {
