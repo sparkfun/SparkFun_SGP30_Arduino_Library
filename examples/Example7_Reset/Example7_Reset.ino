@@ -13,9 +13,10 @@
   This example performs a soft reset on the sensor and restores its baseline.
 */
 
-#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
+#include "SparkFun_SGP30_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
 #include <Wire.h>
 #include <EEPROM.h>
+long t1, t2;
 
 SGP30 mySensor; //create an object of the SGP30 class
 byte baselineC02Addr = 0x00;
@@ -25,7 +26,7 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   Wire.setClock(400000);
-  if (mySensor.begin() != SUCCESS) {
+  if (mySensor.begin() == false) {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }
@@ -64,15 +65,19 @@ void setup() {
   //set the sensor's baseline to the previously gotten baseline
   mySensor.setBaseline(mySensor.baselineCO2, mySensor.baselineTVOC);
   Serial.println("Updated Baseline");
+  t1 = millis();
 }
 
 void loop() {
-  delay(1000); //Wait 1 second
-  mySensor.measureAirQuality();
-  Serial.print("CO2: ");
-  Serial.print(mySensor.CO2);
-  Serial.print(" ppm\t TVOC: ");
-  Serial.print(mySensor.TVOC);
-  Serial.println(" ppb");
-
+  t2 = millis();
+  if ( t2 >= t1 + 1000) //only will occur if 1 second has passed
+  {
+    t1 = t2;  //measure CO2 and TVOC levels
+    mySensor.measureAirQuality();
+    Serial.print("CO2: ");
+    Serial.print(mySensor.CO2);
+    Serial.print(" ppm\tTVOC: ");
+    Serial.print(mySensor.TVOC);
+    Serial.println(" ppb");
+  }
 }

@@ -37,7 +37,7 @@
 */
 
 
-#include "SparkFun_SGP30_Library.h"
+#include "SparkFun_SGP30_Arduino_Library.h"
 
 
 //Constructor
@@ -53,13 +53,13 @@ SGP30::SGP30() {
 }
 
 //Start I2C communication using specified port
-//Returns SUCCESS if successful or other error code if unsuccessful
-SGP30ERR SGP30::begin(TwoWire &wirePort) {
+//Returns true if successful or false if no sensor detected
+bool SGP30::begin(TwoWire &wirePort) {
   _i2cPort = &wirePort; //Grab which port the user wants us to use
   _i2cPort->begin();
   getSerialID();
-  if (serialID != 0x646762) return NO_SENSOR;
-  return SUCCESS;
+  if (serialID == 0) return false;
+  return true;
 }
 
 
@@ -81,16 +81,11 @@ SGP30ERR SGP30::measureAirQuality(void) {
   _i2cPort->write(measure_air_quality, 2); //command to measure air quality
   _i2cPort->endTransmission();
   //Hang out while measurement is taken. datasheet says 10-12ms
-  byte toRead;
-  byte counter;
-  for (counter = 0, toRead = 0 ; counter < 12 && toRead != 6 ; counter++)
-  {
-    delay(1);
-
-    //Comes back in 6 bytes, CO2 data(MSB) / data(LSB) / Checksum / TVOC data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
-  }
-  if (counter == 12) return ERR_I2C_TIMEOUT; //Error out
+  delay(12);
+  //Comes back in 6 bytes, CO2 data(MSB) / data(LSB) / Checksum / TVOC data(MSB) / data(LSB) / Checksum
+  uint8_t toRead;
+  toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
+  if (toRead != 6) return ERR_I2C_TIMEOUT; //Error out
   uint16_t _CO2 = _i2cPort->read() << 8; //store MSB in CO2
   _CO2 |= _i2cPort->read(); //store LSB in CO2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
@@ -115,16 +110,11 @@ SGP30ERR SGP30::getBaseline(void) {
   _i2cPort->write(get_baseline, 2);
   _i2cPort->endTransmission();
   //Hang out while measurement is taken. datasheet says 10ms
-  byte toRead;
-  byte counter;
-  for (counter = 0, toRead = 0 ; counter < 12 && toRead != 6 ; counter++)
-  {
-    delay(1);
-
-    //Comes back in 6 bytes, baselineCO2 data(MSB) / data(LSB) / Checksum / baselineTVOC data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
-  }
-  if (counter == 12) return ERR_I2C_TIMEOUT; //Error out
+  delay(10);
+  uint8_t toRead;
+  //Comes back in 6 bytes, baselineCO2 data(MSB) / data(LSB) / Checksum / baselineTVOC data(MSB) / data(LSB) / Checksum
+  toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
+  if (toRead != 6) return ERR_I2C_TIMEOUT; //Error out
   uint16_t _baselineCO2 = _i2cPort->read() << 8; //store MSB in _baselineCO2
   _baselineCO2 |= _i2cPort->read(); //store LSB in _baselineCO2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
@@ -176,16 +166,11 @@ SGP30ERR SGP30::getFeatureSetVersion(void) {
   _i2cPort->write(get_feature_set_version, 2); //command to get feature version
   _i2cPort->endTransmission();
   //Hang out while measurement is taken. datasheet says 1-2ms
-  byte toRead;
-  byte counter;
-  for (counter = 0, toRead = 0 ; counter < 3 && toRead != 3 ; counter++)
-  {
-    delay(1);
-
-    //Comes back in 3 bytes, data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
-  }
-  if (counter == 3) return ERR_I2C_TIMEOUT; //Error out
+  delay(2);
+  uint8_t toRead;
+  //Comes back in 3 bytes, data(MSB) / data(LSB) / Checksum
+  toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
+  if (toRead != 3) return ERR_I2C_TIMEOUT; //Error out
   uint16_t _featureSetVersion = _i2cPort->read() << 8; //store MSB in featureSetVerison
   _featureSetVersion |= _i2cPort->read(); //store LSB in featureSetVersion
   uint8_t checkSum = _i2cPort->read(); //verify checksum
@@ -202,16 +187,11 @@ SGP30ERR SGP30::measureRawSignals(void) {
   _i2cPort->write(measure_raw_signals, 2); //command to measure raw signals
   _i2cPort->endTransmission();
   //Hang out while measurement is taken. datasheet says 20-25ms
-  byte toRead;
-  byte counter;
-  for (counter = 0, toRead = 0 ; counter < 5 && toRead != 6 ; counter++)
-  {
-    delay(5);
-
-    //Comes back in 6 bytes, H2 data(MSB) / data(LSB) / Checksum / ethanol data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
-  }
-  if (counter == 5) return ERR_I2C_TIMEOUT; //Error out
+  delay(25);
+  uint8_t toRead;
+  //Comes back in 6 bytes, H2 data(MSB) / data(LSB) / Checksum / ethanol data(MSB) / data(LSB) / Checksum
+  toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)6);
+  if (toRead != 6) return ERR_I2C_TIMEOUT; //Error out
   uint16_t _H2 = _i2cPort->read() << 8; //store MSB in _H2
   _H2 |= _i2cPort->read(); //store LSB in _H2
   uint8_t checkSum = _i2cPort->read(); //verify checksum
@@ -240,16 +220,11 @@ SGP30ERR SGP30::getSerialID(void) {
   _i2cPort->write(get_serial_id, 2); //command to get serial ID
   _i2cPort->endTransmission();
   //Hang out while measurement is taken.
-  byte toRead;
-  byte counter;
-  for (counter = 0, toRead = 0 ; counter < 5 && toRead != 9 ; counter++)
-  {
-    delay(1);
-
-    //Comes back in 9 bytes, H2 data(MSB) / data(LSB) / Checksum / ethanol data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)9);
-  }
-  if (counter == 5) return ERR_I2C_TIMEOUT; //Error out
+  delay(1);
+  uint8_t toRead;
+  //Comes back in 9 bytes, H2 data(MSB) / data(LSB) / Checksum / ethanol data(MSB) / data(LSB) / Checksum
+  toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)9);
+  if (toRead != 9) return ERR_I2C_TIMEOUT; //Error out
   uint16_t _serialID1 = _i2cPort->read() << 8; //store MSB to top of _serialID1
   _serialID1 |= _i2cPort->read(); //store next byte in _serialID1
   uint8_t checkSum1 = _i2cPort->read(); //verify checksum
@@ -273,16 +248,11 @@ SGP30ERR SGP30::measureTest(void) {
   _i2cPort->write(measure_test, 2); //command to get self test
   _i2cPort->endTransmission();
   //Hang out while measurement is taken. datasheet says 200-220ms
-  byte toRead;
-  byte counter;
-  for (counter = 0, toRead = 0 ; counter < 22 && toRead != 3 ; counter++)
-  {
-    delay(10);
-
-    //Comes back in 3 bytes, data(MSB) / data(LSB) / Checksum
-    toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
-  }
-  if (counter == 22) return ERR_I2C_TIMEOUT; //Error out
+  delay(220);
+  uint8_t toRead;
+  //Comes back in 3 bytes, data(MSB) / data(LSB) / Checksum
+  toRead = _i2cPort->requestFrom(_SGP30Address, (uint8_t)3);
+  if (toRead != 3) return ERR_I2C_TIMEOUT; //Error out
   uint16_t results = _i2cPort->read() << 8; //store MSB in results
   results |= _i2cPort->read(); //store LSB in results
   uint8_t checkSum = _i2cPort->read(); //verify checksum
@@ -291,7 +261,7 @@ SGP30ERR SGP30::measureTest(void) {
   return SUCCESS;
 }
 
-#ifndef LOOKUP_TABLE
+#ifndef SGP30_LOOKUP_TABLE
 //Given an array and a number of bytes, this calculate CRC8 for those bytes
 //CRC is only calc'd on the data portion (two bytes) of the four bytes being sent
 //From: http://www.sunshine2k.de/articles/coding/crc/understanding_crc.html
@@ -324,7 +294,7 @@ uint8_t SGP30::_CRC8(uint16_t data)
 }
 #endif
 
-#ifdef LOOKUP_TABLE
+#ifdef SGP30_LOOKUP_TABLE
 //Generates CRC8 for SGP30 from lookup table
 uint8_t SGP30::_CRC8(uint16_t data) {
   uint8_t CRC = 0xFF; //inital value

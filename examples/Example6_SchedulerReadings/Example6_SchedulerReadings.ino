@@ -14,7 +14,7 @@
   freeing the main loop from wasteful delays.
 */
 
-#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
+#include "SparkFun_SGP30_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
 #include <TaskScheduler.h> // Click here to get the library: http://librarymanager/All#TaskScheduler
 #include <Wire.h>
 
@@ -30,7 +30,7 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   Wire.setClock(400000);
-  if (mySensor.begin() != SUCCESS) {
+  if (mySensor.begin() == false) {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }

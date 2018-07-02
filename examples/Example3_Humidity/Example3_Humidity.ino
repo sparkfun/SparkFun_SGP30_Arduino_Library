@@ -14,12 +14,13 @@
   and updates the SGP30's humidity compensation with the absolute humidity value.
 */
 
-#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
+#include "SparkFun_SGP30_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
 #include "SparkFun_Si7021_Breakout_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_Si7021
 #include <Wire.h>
 
 SGP30 mySensor; //create an instance of the SGP30 class
 Weather hSensor; //create an instance of the Weather class
+long t1, t2;
 
 byte count = 0;
 
@@ -28,7 +29,7 @@ void setup() {
   Wire.begin();
   Wire.setClock(400000);
   //Initialize the SGP30
-  if (mySensor.begin() != SUCCESS) {
+  if (mySensor.begin() == false) {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }
@@ -48,20 +49,23 @@ void setup() {
   //Set the humidity compensation on the SGP30 to the measured value
   //If no humidity sensor attached, sensHumidity should be 0 and sensor will use default
   mySensor.setHumidity(sensHumidity);
-
+  t1 = millis();
 }
 
 void loop() {
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb
-  delay(1000); //Wait 1 second
-  mySensor.measureAirQuality();
-  Serial.print("CO2: ");
-  Serial.print(mySensor.CO2);
-  Serial.print(" ppm\tTVOC: ");
-  Serial.print(mySensor.TVOC);
-  Serial.println(" ppb");
-
+  t2 = millis();
+  if ( t2 >= t1 + 1000) //only will occur if 1 second has passed
+  {
+    t1 = t2;  //measure CO2 and TVOC levels
+    mySensor.measureAirQuality();
+    Serial.print("CO2: ");
+    Serial.print(mySensor.CO2);
+    Serial.print(" ppm\tTVOC: ");
+    Serial.print(mySensor.TVOC);
+    Serial.println(" ppb");
+  }
 }
 
 double RHtoAbsolute (float relHumidity, float tempC) {

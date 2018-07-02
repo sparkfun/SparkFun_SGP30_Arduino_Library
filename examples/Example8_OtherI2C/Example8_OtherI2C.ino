@@ -13,32 +13,36 @@
   This example reads the sensors calculated CO2 and TVOC values using Software Wire
 */
 
-#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
+#include "SparkFun_SGP30_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
 #include <SoftwareWire.h>
 
 SGP30 mySensor; //create an object of the SGP30 class
+long t1, t2;
 
 void setup() {
   Serial.begin(9600);
   //Initialize sensor, specifying I2C port
-  if (mySensor.begin(Wire) != SUCCESS) {
+  if (mySensor.begin(Wire) == false) {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }
   //Initializes sensor for air quality readings
   mySensor.initAirQuality();
+  t1 = millis();
 }
 
 void loop() {
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb
-  delay(1000); //Wait 1 second
-  //measure CO2 and TVOC levels
-  mySensor.measureAirQuality();
-  Serial.print("CO2: ");
-  Serial.print(mySensor.CO2);
-  Serial.print(" ppm\tTVOC: ");
-  Serial.print(mySensor.TVOC);
-  Serial.println(" ppb");
-
+  t2 = millis();
+  if ( t2 >= t1 + 1000) //only will occur if 1 second has passed
+  {
+    t1 = t2;  //measure CO2 and TVOC levels
+    mySensor.measureAirQuality();
+    Serial.print("CO2: ");
+    Serial.print(mySensor.CO2);
+    Serial.print(" ppm\tTVOC: ");
+    Serial.print(mySensor.TVOC);
+    Serial.println(" ppb");
+  }
 }

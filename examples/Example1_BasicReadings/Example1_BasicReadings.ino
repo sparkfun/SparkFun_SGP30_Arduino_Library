@@ -13,7 +13,7 @@
   This example reads the sensors calculated CO2 and TVOC values
 */
 
-#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
+#include "SparkFun_SGP30_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
 #include <Wire.h>
 
 SGP30 mySensor; //create an object of the SGP30 class
@@ -22,7 +22,7 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   //Initialize sensor
-  if (mySensor.begin() != SUCCESS) {
+  if (mySensor.begin() == false) {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }

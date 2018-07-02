@@ -13,7 +13,7 @@
   This example performs the sensor's self test and displays the results.
 */
 
-#include "SparkFun_SGP30_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30#include <Wire.h>
+#include "SparkFun_SGP30_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30#include <Wire.h>
 
 SGP30 mySensor; //create an object of the SGP30 class
 byte count = 0;
@@ -22,10 +22,11 @@ void setup() {
   Serial.begin(9600);
   Wire.begin();
   Wire.setClock(400000);
-  if (mySensor.begin() != SUCCESS) {
+  if (mySensor.begin() == false) {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }
+  //measureTest() should not be called after a call to initAirQuality()
   error = mySensor.measureTest();
   if (error == SUCCESS) {
     Serial.println("Success!");

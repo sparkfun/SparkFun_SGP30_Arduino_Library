@@ -37,14 +37,13 @@
 */
 
 
-#ifndef SparkFun_SGP30_Library_h
-#define SparkFun_SGP30_Library_h
+#ifndef SparkFun_SGP30_Arduino_Library_h
+#define SparkFun_SGP30_Arduino_Library_h
 
 #include "Arduino.h"
 #include <Wire.h>
 typedef enum {
   SUCCESS = 0,
-  NO_SENSOR,
   ERR_BAD_CRC,
   ERR_I2C_TIMEOUT,
   SELF_TEST_FAIL
@@ -78,7 +77,7 @@ class SGP30
     SGP30();
 
     //Start I2C communication using specified port
-    SGP30ERR begin(TwoWire &wirePort = Wire);//If user doesn't specificy then Wire will be used
+    bool begin(TwoWire &wirePort = Wire);//If user doesn't specificy then Wire will be used
 
     //Initializes sensor for air quality readings
     void initAirQuality(void);
@@ -144,7 +143,7 @@ class SGP30
     //Generates CRC8 for SGP30 from lookup table
     uint8_t SGP30::_CRC8(uint16_t twoBytes);
 
-#ifdef LOOKUP_TABLE
+#ifdef SGP30_LOOKUP_TABLE
     //lookup table for CRC8  http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
     const uint8_t _CRC8LookupTable[16][16] = {
       {0x00, 0x31, 0x62, 0x53, 0xC4, 0xF5, 0xA6, 0x97, 0xB9, 0x88, 0xDB, 0xEA, 0x7D, 0x4C, 0x1F, 0x2E},
