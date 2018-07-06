@@ -30,6 +30,7 @@ void setup() {
     while (1);
   }
   //Initializes sensor for air quality readings
+  //measureAirQuality should be called in one second increments after a call to initAirQuality
   mySensor.initAirQuality();
   t1 = millis();
 }

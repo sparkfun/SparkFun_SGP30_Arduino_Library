@@ -45,6 +45,7 @@ void setup() {
   //Convert the double type humidity to a fixed point 8.8bit number
   uint16_t sensHumidity = doubleToFixedPoint(absHumidity);
   //Initializes sensor for air quality readings
+  //measureAirQuality should be called in one second increments after a call to initAirQuality
   mySensor.initAirQuality();
   //Set the humidity compensation on the SGP30 to the measured value
   //If no humidity sensor attached, sensHumidity should be 0 and sensor will use default

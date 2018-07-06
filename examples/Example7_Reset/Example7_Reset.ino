@@ -30,6 +30,7 @@ void setup() {
     Serial.println("No SGP30 Detected. Check connections.");
     while (1);
   }
+  //measureAirQuality should be called in one second increments after a call to initAirQuality
   mySensor.initAirQuality();
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb

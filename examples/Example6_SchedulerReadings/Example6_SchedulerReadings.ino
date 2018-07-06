@@ -38,6 +38,7 @@ void setup() {
   runner.init();
   //add task t1 to the schedule
   runner.addTask(t1);
+  //measureAirQuality should be called in one second increments after a call to initAirQuality
   mySensor.initAirQuality();
   //enable t1 to run
   t1.enable();
