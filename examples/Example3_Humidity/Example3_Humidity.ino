@@ -73,6 +73,7 @@ double RHtoAbsolute (float relHumidity, float tempC) {
   double eSat = 6.11 * pow(10.0, (7.5 * tempC / (237.7 + tempC)));
   double vaporPressure = (relHumidity * eSat) / 100; //millibars
   double absHumidity = 1000 * vaporPressure * 100 / ((tempC + 273) * 461.5); //Ideal gas law with unit conversions
+  return absHumidity;
 }
 
 uint16_t doubleToFixedPoint( double number) {
