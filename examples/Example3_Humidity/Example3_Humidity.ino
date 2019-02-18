@@ -10,7 +10,7 @@
   Feel like supporting our work? Buy a board from SparkFun!
   https://www.sparkfun.com/products/14813
 
-  This example gets relative humidity from a sensor, convertts it to absolute humidty,
+  This example gets relative humidity from a sensor, converts it to absolute humidty,
   and updates the SGP30's humidity compensation with the absolute humidity value.
 */
 
@@ -36,17 +36,23 @@ void setup() {
 
   //Initialize the humidity sensor and ping it
   hSensor.begin();
+
   // Measure Relative Humidity from the Si7021
   float humidity = hSensor.getRH();
+
   //Measure temperature (in C) from the Si7021
   float temperature = hSensor.getTemp();
+
   //Convert relative humidity to absolute humidity
   double absHumidity = RHtoAbsolute(humidity, temperature);
+
   //Convert the double type humidity to a fixed point 8.8bit number
   uint16_t sensHumidity = doubleToFixedPoint(absHumidity);
+
   //Initializes sensor for air quality readings
   //measureAirQuality should be called in one second increments after a call to initAirQuality
   mySensor.initAirQuality();
+
   //Set the humidity compensation on the SGP30 to the measured value
   //If no humidity sensor attached, sensHumidity should be 0 and sensor will use default
   mySensor.setHumidity(sensHumidity);
@@ -56,10 +62,9 @@ void setup() {
 void loop() {
   //First fifteen readings will be
   //CO2: 400 ppm  TVOC: 0 ppb
-  t2 = millis();
-  if ( t2 >= t1 + 1000) //only will occur if 1 second has passed
+  if ( millis() >= t1 + 1000) //only will occur if 1 second has passed
   {
-    t1 = t2;  //measure CO2 and TVOC levels
+    t1 = millis();  //measure CO2 and TVOC levels
     mySensor.measureAirQuality();
     Serial.print("CO2: ");
     Serial.print(mySensor.CO2);
@@ -82,5 +87,3 @@ uint16_t doubleToFixedPoint( double number) {
   uint16_t value = floor(number2 + 0.5);
   return value;
 }
-
-

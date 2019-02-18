@@ -12,7 +12,11 @@ While the CCS811 requires a burn-in of 48 hours and a run-in of 20 minutes the S
 SparkFun labored with love to create this code. Feel like supporting open source hardware? 
 Buy a [board](https://www.sparkfun.com/products/14813) from SparkFun!
 
-  
+Shout outs to all those folks that have helped make this library better:
+
+* rharkes - PR to fix RHtoAbsolute missing return
+* njh - Library link fix
+
 Repository Contents
 -------------------
 
