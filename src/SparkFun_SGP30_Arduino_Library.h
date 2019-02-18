@@ -141,7 +141,7 @@ class SGP30
     const byte _SGP30Address = 0x58;
 
     //Generates CRC8 for SGP30 from lookup table
-    uint8_t SGP30::_CRC8(uint16_t twoBytes);
+    uint8_t _CRC8(uint16_t twoBytes);
 
 #ifdef SGP30_LOOKUP_TABLE
     //lookup table for CRC8  http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
