@@ -15,11 +15,11 @@
 */
 
 #include "SparkFun_SGP30_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_SGP30
-#include "SparkFun_Si7021_Breakout_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_Si7021
+#include "SparkFun_SHTC3.h" // Click here to get the library: http://librarymanager/All#SparkFun_SHTC3
 #include <Wire.h>
 
 SGP30 mySensor; //create an instance of the SGP30 class
-Weather hSensor; //create an instance of the Weather class
+SHTC3 humiditySensor; //create an instance of the SHTC3 class
 long t1, t2;
 
 byte count = 0;
@@ -35,13 +35,15 @@ void setup() {
   }
 
   //Initialize the humidity sensor and ping it
-  hSensor.begin();
+  humiditySensor.begin();
+  // Call "update()" to command a measurement, wait for measurement to complete, and update the RH and T members of the object 
+  SHTC3_Status_TypeDef result = humiditySensor.update();
+  delay(190);  
+  // Measure Relative Humidity from the SHTC3
+  float humidity = humiditySensor.toPercent();
 
-  // Measure Relative Humidity from the Si7021
-  float humidity = hSensor.getRH();
-
-  //Measure temperature (in C) from the Si7021
-  float temperature = hSensor.getTemp();
+  //Measure temperature (in C) from the SHTC3
+  float temperature = humiditySensor.toDegC();
 
   //Convert relative humidity to absolute humidity
   double absHumidity = RHtoAbsolute(humidity, temperature);
@@ -56,6 +58,10 @@ void setup() {
   //Set the humidity compensation on the SGP30 to the measured value
   //If no humidity sensor attached, sensHumidity should be 0 and sensor will use default
   mySensor.setHumidity(sensHumidity);
+  Serial.print("Absolute humidity compensation set to: ");
+  Serial.print(absHumidity);
+  Serial.println("g/m^3 ");
+  delay(100);
   t1 = millis();
 }
 
@@ -71,6 +77,34 @@ void loop() {
     Serial.print(" ppm\tTVOC: ");
     Serial.print(mySensor.TVOC);
     Serial.println(" ppb");
+  }
+  if (Serial.available()) //check if new data is available on serial port
+  {
+    char ch = Serial.read(); 
+    if (ch == 'h' || ch == 'H') //check if the char input matches either "h" or "H" and if it does, run the compensation routine from the setup
+    {
+      SHTC3_Status_TypeDef result = humiditySensor.update();
+      delay(190);  
+      // Measure Relative Humidity from the SHTC3
+      float humidity = humiditySensor.toPercent();
+    
+      //Measure temperature (in C) from the SHTC3
+      float temperature = humiditySensor.toDegC();
+    
+      //Convert relative humidity to absolute humidity
+      double absHumidity = RHtoAbsolute(humidity, temperature);
+    
+      //Convert the double type humidity to a fixed point 8.8bit number
+      uint16_t sensHumidity = doubleToFixedPoint(absHumidity);
+    
+      //Set the humidity compensation on the SGP30 to the measured value
+      //If no humidity sensor attached, sensHumidity should be 0 and sensor will use default
+      mySensor.setHumidity(sensHumidity);
+      Serial.print("Absolute Humidity Compensation set to: ");
+      Serial.print(absHumidity);
+      Serial.println("g/m^3 ");
+      delay(100);      
+    }
   }
 }
 
