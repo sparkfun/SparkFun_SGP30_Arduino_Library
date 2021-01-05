@@ -56,7 +56,6 @@ SGP30::SGP30()
 bool SGP30::begin(TwoWire &wirePort)
 {
   _i2cPort = &wirePort; //Grab which port the user wants us to use
-  _i2cPort->begin();
   getSerialID();
   if (serialID == 0)
     return false;
