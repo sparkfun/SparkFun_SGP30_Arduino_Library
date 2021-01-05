@@ -21,6 +21,8 @@ long t1, t2;
 
 void setup() {
   Serial.begin(9600);
+  Wire.begin();
+
   //Initialize sensor, specifying I2C port
   if (mySensor.begin(Wire) == false) {
     Serial.println("No SGP30 Detected. Check connections.");
