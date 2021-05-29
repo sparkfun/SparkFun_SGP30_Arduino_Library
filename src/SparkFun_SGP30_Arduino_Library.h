@@ -43,10 +43,10 @@
 #include <Wire.h>
 typedef enum
 {
-  SUCCESS = 0,
-  ERR_BAD_CRC,
-  ERR_I2C_TIMEOUT,
-  SELF_TEST_FAIL
+  SGP30_SUCCESS = 0,
+  SGP30_ERR_BAD_CRC,
+  SGP30_ERR_I2C_TIMEOUT,
+  SGP30_SELF_TEST_FAIL
 } SGP30ERR;
 
 const uint8_t init_air_quality[2] = {0x20, 0x03};

@@ -44,17 +44,17 @@ void loop() {
   {
     t1 = t2;  //measure CO2 and TVOC levels
     error = mySensor.measureAirQuality();
-    if (error == SUCCESS) {
+    if (error == SGP30_SUCCESS) {
       Serial.print("CO2: ");
       Serial.print(mySensor.CO2);
       Serial.print(" ppm\tTVOC: ");
       Serial.print(mySensor.TVOC);
       Serial.println(" ppb");
     }
-    else if (error == ERR_BAD_CRC) {
+    else if (error == SGP30_ERR_BAD_CRC) {
       Serial.println("CRC Failed");
     }
-    else if (error == ERR_I2C_TIMEOUT) {
+    else if (error == SGP30_ERR_I2C_TIMEOUT) {
       Serial.println("I2C Timed out");
     }
   }

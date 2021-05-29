@@ -28,16 +28,16 @@ void setup() {
   }
   //measureTest() should not be called after a call to initAirQuality()
   error = mySensor.measureTest();
-  if (error == SUCCESS) {
+  if (error == SGP30_SUCCESS) {
     Serial.println("Success!");
   }
-  else if (error == ERR_BAD_CRC) {
+  else if (error == SGP30_ERR_BAD_CRC) {
     Serial.println("CRC Failed");
   }
-  else if (error == ERR_I2C_TIMEOUT) {
+  else if (error == SGP30_ERR_I2C_TIMEOUT) {
     Serial.println("I2C Timed out");
   }
-  else if (error == SELF_TEST_FAIL) {
+  else if (error == SGP30_SELF_TEST_FAIL) {
     Serial.println("Self Test Failed");
   }
 }
