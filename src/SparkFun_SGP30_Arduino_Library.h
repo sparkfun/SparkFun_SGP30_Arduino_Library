@@ -87,6 +87,8 @@ public:
   //Will give fixed values of CO2=400 and TVOC=0 for first 15 seconds after init
   //returns false if CRC8 check failed and true if successful
   SGP30ERR measureAirQuality(void);
+  void startAirQuality(void);
+  SGP30ERR getAirQuality(void);
 
   //Returns the current calculated baseline from
   //the sensor's dynamic baseline calculations
@@ -95,6 +97,8 @@ public:
   //after soft reset using setBaseline();
   //returns false if CRC8 check failed and true if successful
   SGP30ERR getBaseline(void);
+  void startGetBaseline(void);
+  SGP30ERR finishGetBaseline(void);
 
   //Updates the baseline to a previous baseline
   //Should only use with previously retrieved baselines
@@ -135,7 +139,7 @@ private:
   TwoWire *_i2cPort;
 
   //SGP30's I2C address
-  const byte _SGP30Address = 0x58;
+  const uint8_t _SGP30Address = 0x58;
 
   //Generates CRC8 for SGP30 from lookup table
   uint8_t _CRC8(uint16_t twoBytes);
